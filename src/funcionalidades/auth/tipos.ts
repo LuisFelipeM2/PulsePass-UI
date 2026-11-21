@@ -16,11 +16,16 @@ export const AuthResponseSchema = z.object({
 })
 export type AuthResponse = z.infer<typeof AuthResponseSchema>
 
-export const AuthenticatedUserResponseSchema = z.object({
-  id: z.number(),
-  username: z.string(),
-  roles: z.array(z.string()),
-})
+export const AuthenticatedUserResponseSchema = z
+  .object({
+    id: z.number().optional(),
+    identifier: z.string().optional(),
+    username: z.string(),
+    email: z.email().optional(),
+    roles: z.array(z.string()),
+  })
+  .passthrough()
 export type AuthenticatedUserResponse = z.infer<
   typeof AuthenticatedUserResponseSchema
 >
+export type UsuarioSesion = AuthenticatedUserResponse & { email: string }

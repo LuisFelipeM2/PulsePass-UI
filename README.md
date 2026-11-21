@@ -1,75 +1,47 @@
-# React + TypeScript + Vite
+# PulsePass Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend SPA de PulsePass construida con React, TypeScript, Tailwind CSS v4, React Router, TanStack Query, React Hook Form y Zod.
 
-Currently, two official plugins are available:
+## Requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 22.22 o superior.
+- API PulsePass disponible en `http://localhost:8080` para los flujos conectados.
 
-## React Compiler
+## Desarrollo
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
+cp .env.example .env
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Vite reenvía `/api` a `http://localhost:8080`. Para otro origen, cambia `VITE_API_BASE_URL` en `.env` y configura CORS en el backend.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Comandos
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- `npm run dev`: servidor de desarrollo.
+- `npm run build`: comprobación TypeScript y compilación de producción.
+- `npm run lint`: reglas ESLint.
+- `npm test`: suite Vitest existente.
 
-```
+## Rutas principales
+
+- Público: `/`, `/eventos`, `/artistas`, `/sedes`, `/login`, `/registro`.
+- Usuario: `/cuenta`, `/mis-tickets`, `/mis-tickets/:ticketCode`.
+- STAFF: `/staff/validacion`, `/staff/eventos/:eventCode/tickets`.
+- ADMIN: `/admin/eventos`, `/admin/eventos/nuevo`, `/admin/eventos/:eventCode`.
+
+## Estructura
+
+- `src/funcionalidades/<dominio>/api.ts`: funciones HTTP; no contiene hooks ni componentes.
+- `src/funcionalidades/<dominio>/hooks.ts`: consultas y mutaciones TanStack Query, incluidas sus claves e invalidaciones.
+- `src/pages/`: una página por ruta, cargada de forma perezosa; `compartidos.tsx` contiene elementos de presentación reutilizados.
+- `src/componentes/`: controles visuales generales.
+- `src/layouts/`: navegación y guardas de sesión/rol.
+- `src/lib/`: cliente HTTP, rutas, formato y configuración de caché.
+
+La interfaz oculta acciones según rol para facilitar el uso; la API sigue siendo responsable de autorizar cada operación. El token de sesión se guarda en `sessionStorage` y se envía únicamente mediante `Authorization: Bearer`.
+
+## Integración pendiente de confirmar
+
+Los esquemas Zod deben contrastarse con los DTO reales de las fases REST y Seguridad antes de conectar la API. En particular: campos de `GET /api/auth/me`, datos incluidos en respuestas de eventos y tickets, códigos HTTP de creación/asociación y forma del objeto `details` de errores. Este proyecto no implementa pagos reales, QR, refresh token ni cambios al backend.
